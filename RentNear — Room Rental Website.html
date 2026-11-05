@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RentNear — Find a room nearby</title>
+<style>
+:root {
+  --site-primary: #174D43;
+  --site-on-primary: #FFFFFF;
+  --site-secondary: #E8B66A;
+  --site-on-secondary: #282014;
+  --site-background: #F5F4EF;
+  --site-on-background: #1E2926;
+  --site-font-body: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --site-font-heading: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --site-heading-scale: 1;
+  --site-spacing-scale: 1;
+  --site-radius-scale: 1;
+  --site-decoration-opacity: 1;
+  color-scheme: light dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--site-font-body); background: var(--site-background); color: var(--site-on-background); }
+.app { min-height: 100vh; width: 100%; background-color: var(--site-background); color: var(--site-on-background); }
+header { background: var(--site-primary); color: var(--site-on-primary); padding: calc(18px * var(--site-spacing-scale)) max(5vw, 20px); }
+.nav { max-width: 1160px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+.brand { font-size: 1.35rem; font-weight: 850; letter-spacing: -.05em; }
+.brand span { color: var(--site-secondary); }
+.nav small { opacity: .85; }
+.hero { background: var(--site-primary); color: var(--site-on-primary); padding: 46px 20px 62px; position: relative; overflow: hidden; }
+.hero:after { content: ""; position: absolute; width: 340px; height: 340px; border: 1px solid rgba(255,255,255,.16); border-radius: 50%; right: -90px; top: -190px; box-shadow: 0 0 0 35px rgba(255,255,255,.035), 0 0 0 75px rgba(255,255,255,.025); opacity: var(--site-decoration-opacity); pointer-events:none; }
+.hero-inner { max-width: 1160px; margin: auto; position: relative; z-index: 1; }
+.eyebrow { text-transform: uppercase; letter-spacing: .16em; font-size: .72rem; font-weight: 750; color: var(--site-secondary); }
+h1 { font: 850 calc(2.6rem * var(--site-heading-scale))/1.05 var(--site-font-heading); letter-spacing: -.055em; max-width: 650px; margin: 14px 0; }
+.hero p { color: rgba(255,255,255,.78); margin: 0; max-width: 560px; line-height: 1.6; }
+.search-panel { max-width: 1160px; margin: -28px auto 0; position: relative; z-index: 2; background: light-dark(#FFFFFF,#202A27); color: light-dark(#1E2926,#F3F4EF); border: 1px solid light-dark(#E4E5DF,#39433F); border-radius: calc(18px * var(--site-radius-scale)); padding: 18px; box-shadow: 0 12px 36px rgba(20,40,32,.12); }
+.search-grid { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 12px; align-items: end; }
+.field label { display:block; font-size:.75rem; font-weight:750; margin: 0 0 7px; color: light-dark(#5D6964,#B8C2BD); }
+input, select { width:100%; min-width:0; border:1px solid light-dark(#D9DED9,#48534E); border-radius:10px; padding:13px 12px; background: light-dark(#FAFBF8,#17201D); color: light-dark(#1E2926,#F4F6F2); font: inherit; outline: none; }
+input:focus, select:focus { border-color: var(--site-primary); box-shadow: 0 0 0 3px rgba(23,77,67,.13); }
+button { border:0; border-radius:10px; padding:13px 18px; font:700 .92rem var(--site-font-body); cursor:pointer; transition: transform .15s, opacity .15s; }
+button:hover { transform: translateY(-1px); }
+.primary { background:var(--site-primary); color:var(--site-on-primary); }
+.secondary { background:var(--site-secondary); color:var(--site-on-secondary); }
+.outline { background:transparent; color:inherit; border:1px solid light-dark(#D9DED9,#48534E); }
+main { max-width:1160px; margin: 42px auto 70px; padding: 0 20px; }
+.section-head { display:flex; justify-content:space-between; align-items:end; gap:16px; margin-bottom:20px; }
+h2 { font:800 calc(1.65rem * var(--site-heading-scale))/1.15 var(--site-font-heading); letter-spacing:-.04em; margin:0 0 6px; }
+.muted { color:light-dark(#6A756F,#AAB5AF); font-size:.92rem; }
+.results { display:flex; align-items:center; gap:8px; font-size:.85rem; color:light-dark(#6A756F,#AAB5AF); }
+.cards { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
+.card { overflow:hidden; border:1px solid light-dark(#E2E5DF,#39433F); border-radius:calc(16px * var(--site-radius-scale)); background:light-dark(#FFFFFF,#202A27); }
+.photo { height:175px; position:relative; display:flex; align-items:center; justify-content:center; color:#fff; background:linear-gradient(135deg,#A9B6A2,#647F70); overflow:hidden; }
+.photo:before { content:""; position:absolute; width:210px; height:210px; border-radius:50%; background:rgba(255,255,255,.15); right:-55px; top:-95px; }
+.photo .room-art { font-size:3.5rem; filter:drop-shadow(0 6px 10px rgba(0,0,0,.12)); }
+.tag { position:absolute; top:13px; left:13px; border-radius:30px; padding:6px 10px; font-size:.72rem; font-weight:800; background:#F5E6C9; color:#47351C; }
+.heart { position:absolute; right:12px; top:12px; border-radius:50%; width:36px; height:36px; padding:0; background:rgba(255,255,255,.92); color:#244238; font-size:1.15rem; }
+.card-body { padding:16px; }
+.price { font-size:1.35rem; font-weight:850; letter-spacing:-.04em; }
+.price small { font-size:.75rem; font-weight:500; color:light-dark(#748078,#AAB5AF); letter-spacing:0; }
+.card h3 { font-size:1.02rem; margin:8px 0 5px; }
+.location { color:light-dark(#6A756F,#AAB5AF); font-size:.84rem; }
+.meta { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0; }
+.meta span { background:light-dark(#F1F4EF,#2B3732); color:light-dark(#53635B,#C1CBC5); border-radius:7px; padding:6px 8px; font-size:.73rem; }
+.card-foot { display:flex; justify-content:space-between; align-items:center; border-top:1px solid light-dark(#E9ECE7,#39433F); padding-top:12px; gap:8px; }
+.card-foot small { color:light-dark(#748078,#AAB5AF); font-size:.75rem; }
+.card-foot button { padding:9px 12px; font-size:.8rem; }
+.empty { display:none; padding:42px 20px; text-align:center; border:1px dashed light-dark(#C8D0C9,#56615B); border-radius:16px; }
+.how { margin-top:56px; display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+.step { padding:20px; border-radius:14px; background:light-dark(#EAEFE8,#26332E); }
+.step b { display:block; margin:10px 0 6px; }
+.step p { color:light-dark(#65736B,#B5C0B9); line-height:1.5; font-size:.86rem; margin:0; }
+footer { background:var(--site-primary); color:rgba(255,255,255,.82); padding:25px 20px; text-align:center; font-size:.82rem; }
+.modal-backdrop { display:none; position:fixed; inset:0; z-index:10; background:rgba(10,20,16,.62); padding:20px; align-items:center; justify-content:center; }
+.modal { width:min(540px,100%); max-height:90vh; overflow:auto; background:light-dark(#FFFFFF,#202A27); color:light-dark(#1E2926,#F3F4EF); border-radius:18px; padding:22px; }
+.login-note { background:light-dark(#F1F4EF,#2B3732); border-radius:10px; padding:12px; color:light-dark(#53635B,#C1CBC5); font-size:.82rem; line-height:1.5; margin-top:14px; }
+.modal-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+.modal-head h2 { font-size:1.35rem; }
+.close { background:transparent; padding:5px 10px; font-size:1.4rem; color:inherit; }
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.form-grid .wide { grid-column:1/-1; }
+.form-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:18px; }
+.toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:20; background:#1C342C; color:white; padding:12px 18px; border-radius:30px; display:none; box-shadow:0 8px 25px rgba(0,0,0,.2); }
+@media(max-width:850px){ .search-grid{grid-template-columns:1fr 1fr}.cards{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media(max-width:580px){ .hero{padding:38px 20px 54px} h1{font-size:2.2rem}.search-grid{grid-template-columns:1fr}.search-panel{margin-left:14px;margin-right:14px}.cards{grid-template-columns:1fr}.section-head{align-items:start;flex-direction:column}.how{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.form-grid .wide{grid-column:auto}.nav small{display:none} }
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="nav"><div class="brand">rent<span>near</span>.</div><small>Silvassa · Rooms from local owners</small><button class="secondary" id="openAddTop">+ List your room</button></div></header>
+<section class="hero"><div class="hero-inner"><div class="eyebrow">Made for Silvassa and nearby areas</div><h1>Find a room to rent in Silvassa.</h1><p>Explore rooms, shared flats and private spaces in Silvassa, Amli, Samarvarni, Dadra, Rakholi and nearby localities. Compare prices and contact the owner directly.</p></div></section>
+<section class="search-panel" aria-label="Search rental rooms"><div class="search-grid">
+<div class="field"><label for="area">AREA OR LOCALITY</label><input id="area" placeholder="Try: Silvassa, Amli, Dadra, Rakholi"></div>
+<div class="field"><label for="budget">MAX MONTHLY RENT</label><select id="budget"><option value="">Any budget</option><option value="5000">Up to ₹5,000</option><option value="8000">Up to ₹8,000</option><option value="12000">Up to ₹12,000</option><option value="20000">Up to ₹20,000</option></select></div>
+<div class="field"><label for="kind">ROOM TYPE</label><select id="kind"><option value="">All types</option><option>Private room</option><option>Shared room</option><option>1 RK</option><option>1 BHK</option></select></div>
+<button class="primary" id="searchBtn">Search rooms</button>
+</div></section>
+<main>
+<div class="section-head"><div><h2>Rooms you might like</h2><div class="muted">Demo listings for Silvassa and nearby areas. Contact owners on WhatsApp.</div></div><div class="results" id="resultCount">6 rooms found</div></div>
+<div class="cards" id="cards"></div><div class="empty" id="empty"><div style="font-size:2rem">⌕</div><h3>No rooms match your search</h3><p class="muted">Try a nearby area or increase your budget.</p><button class="outline" id="resetBtn">Clear filters</button></div>
+<section class="how"><div class="step"><div>📍</div><b>1. Search your area</b><p>Enter a locality, city or pincode to discover available rooms nearby.</p></div><div class="step"><div>🏠</div><b>2. Compare rooms</b><p>Check rent, room type and facilities before choosing a place.</p></div><div class="step"><div>🤝</div><b>3. Contact the owner</b><p>Reach out to the owner and arrange a visit before paying anything.</p></div></section>
+</main>
+<footer>rentnear. · A simple way to find your next room · Demo website</footer>
+</div>
+<div class="modal-backdrop" id="addModal"><div class="modal"><div class="modal-head"><h2>List your room</h2><button class="close" id="closeModal" aria-label="Close">×</button></div><form id="listingForm"><div class="form-grid">
+<div class="field wide"><label>ROOM TITLE</label><input name="title" placeholder="e.g. Sunny private room near market" required></div>
+<div class="field"><label>MONTHLY RENT (₹)</label><input name="rent" type="number" min="1" placeholder="6500" required></div>
+<div class="field"><label>ROOM TYPE</label><select name="type"><option>Private room</option><option>Shared room</option><option>1 RK</option><option>1 BHK</option></select></div>
+<div class="field wide"><label>AREA / CITY</label><input name="area" placeholder="e.g. Silvassa" required></div>
+<div class="field"><label>FURNISHING</label><select name="furnish"><option>Furnished</option><option>Semi-furnished</option><option>Unfurnished</option></select></div>
+<div class="field"><label>AVAILABLE FROM</label><input name="available" type="date"></div>
+<div class="field wide"><label>WHATSAPP NUMBER (WITH COUNTRY CODE)</label><input name="phone" type="tel" inputmode="numeric" placeholder="e.g. 919876543210" pattern="[0-9]{10,13}" required></div>
+<div class="field wide"><label style="display:flex;gap:9px;align-items:center;font-weight:600"><input name="ownerConfirm" type="checkbox" required style="width:auto"> I confirm I am the property owner or authorized to list this room.</label></div>
+</div><div class="form-actions"><button type="button" class="outline" id="cancelAdd">Cancel</button><button class="primary" type="submit">Add my room</button></div></form><p class="muted" style="font-size:.75rem;margin-bottom:0">Listings are saved in Firebase Firestore after owner phone verification. Configure Firestore security rules before publishing the website.</p></div></div>
+</div><div class="modal-backdrop" id="ownerLoginModal"><div class="modal"><div class="modal-head"><h2>Owner login</h2><button class="close" id="closeLogin" aria-label="Close">×</button></div><p class="muted">Sign in with your mobile number to list and manage your rooms on RentNear.</p><form id="ownerLoginForm"><div class="field"><label for="ownerMobile">MOBILE NUMBER</label><input id="ownerMobile" name="mobile" type="tel" inputmode="numeric" placeholder="Enter your 10-digit mobile number" pattern="[0-9]{10}" required></div><div class="form-actions"><button type="button" class="outline" id="cancelLogin">Cancel</button><button class="primary" type="submit">Continue</button></div></form><div class="login-note"><strong>Firebase phone login.</strong> Enable Phone sign-in in Firebase Authentication and add your website domain to Authorized domains before requesting OTPs.</div></div></div>
+<div id="recaptcha-container"></div>
+<div class="toast" id="toast"></div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyDxdZG01j5Os6czMOGG0eHSMxuM317mKSA",
+  authDomain: "rentnear-3f50a.firebaseapp.com",
+  projectId: "rentnear-3f50a",
+  storageBucket: "rentnear-3f50a.firebasestorage.app",
+  messagingSenderId: "543761178549",
+  appId: "1:543761178549:web:f1f6472a6193cda38cc3fc",
+  measurementId: "G-FTD6MGJ52K"
+};
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
+let confirmationResult = null;
+let recaptchaVerifier = null;
+const listings = [
+ {id:1,title:"Bright private room near market",area:"Silvassa",rent:6500,type:"Private room",furnish:"Furnished",features:["Wi-Fi","Attached bathroom","Bed"],icon:"🛏️",tag:"Sample listing"},
+ {id:2,title:"Shared room in a clean flat",area:"Amli",rent:3500,type:"Shared room",furnish:"Semi-furnished",features:["Wi-Fi","Kitchen access","Fan"],icon:"🏡",tag:"Sample listing"},
+ {id:3,title:"Compact 1 RK for working people",area:"Dadra",rent:7800,type:"1 RK",furnish:"Unfurnished",features:["Private kitchen","Parking","Balcony"],icon:"🏠",tag:"Sample listing"},
+ {id:4,title:"Furnished room near college",area:"Samarvarni",rent:5000,type:"Private room",furnish:"Furnished",features:["Study table","Wi-Fi","Cupboard"],icon:"📚",tag:"Sample listing"},
+ {id:5,title:"Spacious 1 BHK with balcony",area:"Rakholi",rent:11500,type:"1 BHK",furnish:"Semi-furnished",features:["Balcony","Parking","Kitchen"],icon:"🌿",tag:"Sample listing"},
+ {id:6,title:"Affordable shared accommodation",area:"Khanvel",rent:4200,type:"Shared room",furnish:"Furnished",features:["Bed","Wi-Fi","Water"],icon:"🛋️",tag:"Sample listing"}
+];
+let saved = new Set();
+const cards = document.getElementById('cards');
+const rupees = n => '₹' + Number(n).toLocaleString('en-IN');
+function render(){
+ const q=document.getElementById('area').value.trim().toLowerCase();
+ const max=Number(document.getElementById('budget').value)||Infinity;
+ const type=document.getElementById('kind').value;
+ const found=listings.filter(x=>(!q || x.area.toLowerCase().includes(q) || x.title.toLowerCase().includes(q)) && x.rent<=max && (!type || x.type===type));
+ cards.innerHTML=found.map(x=>`<article class="card"><div class="photo"><span class="tag">${x.tag}</span><button class="heart" data-save="${x.id}" aria-label="Save listing">${saved.has(x.id)?'♥':'♡'}</button><span class="room-art">${x.icon}</span></div><div class="card-body"><div class="price">${rupees(x.rent)} <small>/ month</small></div><h3>${x.title}</h3><div class="location">⌖ ${x.area}</div><div class="meta"><span>${x.type}</span><span>${x.furnish}</span>${x.features.slice(0,2).map(f=>`<span>${f}</span>`).join('')}</div><div class="card-foot"><small>Owner listing · ${x.phone?'Contact available':'Sample contact'}</small>${x.phone?`<a class="primary" style="text-decoration:none;border-radius:10px;padding:9px 12px;font-size:.8rem;font-weight:700" href="https://wa.me/${x.phone}" target="_blank" rel="noopener">WhatsApp owner</a>`:'<button class="outline" disabled title="Sample listing has no real owner contact">No contact</button>'}</div></div></article>`).join('');
+ document.getElementById('resultCount').textContent=`${found.length} ${found.length===1?'room':'rooms'} found`;
+ document.getElementById('empty').style.display=found.length?'none':'block';
+}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2600)}
+function openModal(){document.getElementById('ownerLoginModal').style.display='flex'}
+function closeModal(){document.getElementById('addModal').style.display='none'}
+function closeLogin(){document.getElementById('ownerLoginModal').style.display='none'}
+document.getElementById('searchBtn').addEventListener('click',render);
+document.getElementById('area').addEventListener('keydown',e=>{if(e.key==='Enter')render()});
+document.getElementById('budget').addEventListener('change',render);
+document.getElementById('kind').addEventListener('change',render);
+document.getElementById('resetBtn').addEventListener('click',()=>{document.getElementById('area').value='';document.getElementById('budget').value='';document.getElementById('kind').value='';render()});
+document.getElementById('openAddTop').addEventListener('click',openModal);
+document.getElementById('closeLogin').addEventListener('click',closeLogin);
+document.getElementById('cancelLogin').addEventListener('click',closeLogin);
+document.getElementById('ownerLoginModal').addEventListener('click',e=>{if(e.target.id==='ownerLoginModal')closeLogin()});
+document.getElementById('ownerLoginForm').addEventListener('submit',async e=>{e.preventDefault();const mobile=document.getElementById('ownerMobile').value.trim();try{if(!recaptchaVerifier)recaptchaVerifier=new RecaptchaVerifier(auth,'recaptcha-container',{});confirmationResult=await signInWithPhoneNumber(auth,'+91'+mobile,recaptchaVerifier);const code=window.prompt('Enter the 6-digit OTP sent to +91 '+mobile);if(!code)return;await confirmationResult.confirm(code);closeLogin();document.getElementById('addModal').style.display='flex';toast('Mobile verified. You can now list your room.')}catch(error){console.error(error);toast(error.code==='auth/invalid-phone-number'?'Check your mobile number.':'OTP could not be verified. Check Firebase Phone sign-in settings and try again.');if(recaptchaVerifier){recaptchaVerifier.clear();recaptchaVerifier=null}}});
+document.getElementById('closeModal').addEventListener('click',closeModal);
+document.getElementById('cancelAdd').addEventListener('click',closeModal);
+document.getElementById('addModal').addEventListener('click',e=>{if(e.target.id==='addModal')closeModal()});
+cards.addEventListener('click',e=>{const save=e.target.closest('[data-save]');if(save){const id=Number(save.dataset.save);saved.has(id)?saved.delete(id):saved.add(id);render()}});
+document.getElementById('listingForm').addEventListener('submit',async e=>{e.preventDefault();if(!auth.currentUser){toast('Please sign in with your mobile number first.');return}const f=new FormData(e.target);const phone=String(f.get('phone')).replace(/\D/g,'');const listing={title:f.get('title'),area:f.get('area'),rent:Number(f.get('rent')),type:f.get('type'),furnish:f.get('furnish'),phone,features:['Owner listed'],icon:'🏘️',tag:'Owner listed',ownerId:auth.currentUser.uid,createdAt:new Date().toISOString()};try{const saved=await addDoc(collection(db,'listings'),listing);listings.unshift({...listing,id:saved.id});closeModal();e.target.reset();document.getElementById('area').value='';document.getElementById('budget').value='';document.getElementById('kind').value='';render();toast('Your room listing is saved.')}catch(error){console.error(error);toast('Could not save listing. Check Firestore setup and security rules.')}});
+getDocs(query(collection(db,'listings'),orderBy('createdAt','desc'))).then(snapshot=>{const savedListings=snapshot.docs.map(d=>({id:d.id,...d.data()}));if(savedListings.length){listings.splice(0,listings.length,...savedListings);render()}}).catch(error=>console.error('Could not load Firestore listings:',error));
+render();
+</script>
+</body>
+</html>
