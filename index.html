@@ -1,1 +1,132 @@
-# rentnear
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RentNear - Find Your Room</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f5f7fb;color:#172033}
+header{background:#123b70;color:white;padding:20px}
+nav{max-width:1000px;margin:auto;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:25px;font-weight:bold}
+.hero{text-align:center;padding:55px 18px;background:#e5efff}
+.hero h1{font-size:34px;margin:0 0 12px}
+.hero p{color:#52627a}
+.search{background:white;padding:15px;border-radius:12px;max-width:650px;margin:25px auto;display:flex;gap:10px;flex-wrap:wrap}
+input,select,button{padding:13px;border:1px solid #ddd;border-radius:7px;font-size:15px}
+.search input{flex:1;min-width:150px}
+button{background:#1766cf;color:white;border:0;cursor:pointer}
+.container{max-width:1000px;margin:30px auto;padding:0 15px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px}
+.card{background:white;border-radius:12px;overflow:hidden;box-shadow:0 3px 12px #0001}
+.photo{height:150px;background:#dce9fa;display:grid;place-items:center;font-size:48px}
+.info{padding:16px}
+.price{font-size:21px;font-weight:bold;color:#1766cf}
+.tag{color:#68778b;font-size:13px}
+.contact{display:block;text-align:center;text-decoration:none;background:#1766cf;color:white;padding:12px;border-radius:7px;margin-top:12px}
+section{margin-bottom:35px}
+footer{text-align:center;padding:25px;background:#123b70;color:white;margin-top:40px}
+@media(max-width:500px){.hero h1{font-size:27px}}
+</style>
+</head>
+<body>
+
+<header>
+<nav>
+<div class="logo">🏠 RentNear</div>
+<div>Find Your Next Home</div>
+</nav>
+</header>
+
+<div class="hero">
+<h1>Find Rooms Near You</h1>
+<p>Discover affordable rooms, flats and PG accommodation.</p>
+<div class="search">
+<input id="location" placeholder="Enter area or city">
+<select id="type">
+<option value="all">All properties</option>
+<option>Room</option>
+<option>Flat</option>
+<option>PG</option>
+</select>
+<button onclick="searchRooms()">Search</button>
+</div>
+</div>
+
+<div class="container">
+<section>
+<h2>Explore Rental Properties</h2>
+<p id="message">Browse available property listings.</p>
+<div class="cards" id="listings">
+
+<div class="card" data-location="silvassa amli" data-type="room">
+<div class="photo">🏠</div>
+<div class="info">
+<div class="price">₹ Demo price</div>
+<h3>Sample Room</h3>
+<p class="tag">Amli, Silvassa</p>
+<p>Example rental listing.</p>
+<a class="contact" href="javascript:void(0)">Contact owner</a>
+</div>
+</div>
+
+<div class="card" data-location="silvassa dadra" data-type="flat">
+<div class="photo">🏢</div>
+<div class="info">
+<div class="price">₹ Demo price</div>
+<h3>Sample Flat</h3>
+<p class="tag">Dadra, Silvassa</p>
+<p>Example rental listing.</p>
+<a class="contact" href="javascript:void(0)">Contact owner</a>
+</div>
+</div>
+
+<div class="card" data-location="rakholi" data-type="pg">
+<div class="photo">🛏️</div>
+<div class="info">
+<div class="price">₹ Demo price</div>
+<h3>Sample PG</h3>
+<p class="tag">Rakholi</p>
+<p>Example rental listing.</p>
+<a class="contact" href="javascript:void(0)">Contact owner</a>
+</div>
+</div>
+
+</div>
+</section>
+
+<section>
+<h2>Why RentNear?</h2>
+<p>✔ Easy property search</p>
+<p>✔ Rooms, flats and PG options</p>
+<p>✔ Find properties near your location</p>
+</section>
+</div>
+
+<footer>
+<p>© 2026 RentNear | Find Your Space Nearby</p>
+</footer>
+
+<script>
+function searchRooms(){
+const location=document.getElementById("location").value.toLowerCase().trim();
+const type=document.getElementById("type").value.toLowerCase();
+const cards=document.querySelectorAll(".card");
+let count=0;
+cards.forEach(card=>{
+const area=card.dataset.location;
+const category=card.dataset.type;
+const matchLocation=!location||area.includes(location);
+const matchType=type==="all"||category===type;
+card.style.display=matchLocation&&matchType?"block":"none";
+if(matchLocation&&matchType)count++;
+});
+document.getElementById("message").textContent=
+count+" sample listing(s) found.";
+}
+</script>
+</body>
+</html>
+
